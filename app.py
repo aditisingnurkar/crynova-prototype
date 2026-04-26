@@ -12,15 +12,15 @@ import tempfile
 # -------------------------------
 DATASET_PATH = "dataset"
 SAMPLE_RATE = 22050
-DURATION = 3  # seconds
+DURATION = 3
 
 # -------------------------------
-# FEATURE EXTRACTION
+# FEATURE EXTRACTION (BLOCK 3 FINAL)
 # -------------------------------
 def extract_features(file_path):
     y, sr = librosa.load(file_path, duration=DURATION)
 
-    # Normalize
+    # Normalize audio
     y = librosa.util.normalize(y)
 
     # MFCC
@@ -28,13 +28,19 @@ def extract_features(file_path):
     mfcc_mean = np.mean(mfcc.T, axis=0)
 
     # Pitch
-    pitch = np.mean(librosa.yin(y, fmin=50, fmax=300))
+    pitch = librosa.yin(y, fmin=50, fmax=300)
+    pitch_mean = np.nan_to_num(np.mean(pitch))
 
     # Energy
     energy = np.mean(librosa.feature.rms(y=y))
 
-    # Combine all features
-    features = np.hstack([mfcc_mean, pitch, energy])
+    # Combine
+    features = np.hstack([mfcc_mean, pitch_mean, energy])
+
+    # Normalize feature vector
+    norm = np.linalg.norm(features)
+    if norm != 0:
+        features = features / norm
 
     return features
 
@@ -67,7 +73,7 @@ def load_dataset():
 # TRAIN MODEL
 # -------------------------------
 def train_model(X, y):
-    model = KNeighborsClassifier(n_neighbors=3)
+    model = KNeighborsClassifier(n_neighbors=1)  # better for small data
     model.fit(X, y)
     return model
 
@@ -92,13 +98,13 @@ def predict(file_path, model, label_map):
     features = features.reshape(1, -1)
 
     prediction = model.predict(features)[0]
-    probabilities = model.predict_proba(features)[0]
 
-    # Reverse label map
+    # confidence (distance-based)
+    distances, _ = model.kneighbors(features)
+    confidence = round(100 / (1 + distances[0][0]), 2)
+
     inv_map = {v: k for k, v in label_map.items()}
-
     label = inv_map[prediction]
-    confidence = round(np.max(probabilities) * 100, 2)
 
     return label, confidence
 
@@ -116,21 +122,20 @@ def get_suggestion(label):
     return suggestions.get(label, "No suggestion available.")
 
 # -------------------------------
-# STREAMLIT UI
+# UI
 # -------------------------------
 st.title("CryNova - Dunstan Cry Prototype")
 
-st.write("This is a prototype system for classifying baby cries into Dunstan-inspired categories.")
+st.write("Prototype system for classifying baby cries into Dunstan-inspired categories.")
 
 # Load dataset
 X, y, label_map = load_dataset()
 
 if len(X) == 0:
-    st.error("Dataset not loaded. Please check your dataset folder.")
+    st.error("Dataset not loaded. Check dataset folder.")
 else:
     st.success(f"Loaded {len(X)} samples")
 
-    # Train model
     model = train_model(X, y)
 
     st.subheader("Choose Input Method")
@@ -140,7 +145,7 @@ else:
     audio_file_path = None
 
     if option == "Upload Audio":
-        uploaded_file = st.file_uploader("Upload a .wav file", type=["wav"])
+        uploaded_file = st.file_uploader("Upload .wav file", type=["wav"])
         if uploaded_file is not None:
             temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
             temp_file.write(uploaded_file.read())
