@@ -7,6 +7,11 @@ from scipy.io.wavfile import write
 from sklearn.neighbors import KNeighborsClassifier
 import tempfile
 
+from pydub import AudioSegment
+
+AudioSegment.converter = r"C:\ffmpeg\bin\ffmpeg.exe"
+AudioSegment.ffprobe = r"C:\ffmpeg\bin\ffprobe.exe"
+
 # -------------------------------
 # CONFIG
 # -------------------------------
@@ -80,15 +85,17 @@ def train_model(X, y):
 # -------------------------------
 # RECORD AUDIO
 # -------------------------------
+from audiorecorder import audiorecorder
+
 def record_audio():
-    st.write("Recording...")
-    recording = sd.rec(int(DURATION * SAMPLE_RATE), samplerate=SAMPLE_RATE, channels=1)
-    sd.wait()
+    audio = audiorecorder("Click to record", "Recording...")
 
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
-    write(temp_file.name, SAMPLE_RATE, recording)
+    if len(audio) > 0:
+        temp_file = tempfile.NamedTemporaryFile(delete=False, suffix=".wav")
+        audio.export(temp_file.name, format="wav")
+        return temp_file.name
 
-    return temp_file.name
+    return None
 
 # -------------------------------
 # PREDICTION
@@ -153,9 +160,9 @@ else:
             st.audio(audio_file_path)
 
     elif option == "Record Audio":
-        if st.button("Record"):
-            audio_file_path = record_audio()
-            st.audio(audio_file_path)
+        audio_file_path = record_audio()
+        if audio_file_path:
+          st.audio(audio_file_path)
 
     if audio_file_path:
         label, confidence = predict(audio_file_path, model, label_map)
