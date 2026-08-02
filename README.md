@@ -1,79 +1,151 @@
-CryNova: Baby Cry Classifier Prototype
-CryNova is an intelligent, empathetic web application built to analyze infant cries and translate them into actionable insights for parents and caregivers.
-Based on the Dunstan Baby Language framework, the application utilizes audio signal processing and machine learning to identify specific acoustic patterns
-(reflexes) that signal a baby's core physical needs.
+# CryNova – Baby Cry Classifier Prototype
 
-Developed as a winning concept for the Prototype Competition 2026, CryNova features a highly scannable, minimalist dashboard utilizing a soft, pastel aesthetic
-to provide clarity at a glance for stressed parents.
+## Problem Statement
 
-| Feature                         | Description                                                                                                                                                                             
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- 
-| Dual Input Modes                | Upload a pre-recorded `.wav` audio file or record a baby's cry live directly through the web browser.                                                                                   
-| Acoustic Feature Extraction     | Extracts Mel-Frequency Cepstral Coefficients (MFCCs), fundamental frequency (pitch using the YIN algorithm), and Root Mean 
-|                                 |  Square (RMS) energy to create a comprehensive audio profile. 
-| Machine Learning Classifier     | Employs a localized K-Nearest Neighbors (KNN) model trained dynamically on pre-categorized infant vocalizations to classify
-|                                 | different types of baby cries.                              |
-| Intuitive Visual Feedback       | Dynamic confidence trackers and clean typography make results easy to interpret, even in high-stress situations.                                                                        
-| Actionable Guidance             | Provides instant, practical pediatric suggestions based on the detected cry type, such as swaddling, feeding, burping, or 
-|                                 | bicycle leg exercises.                                        
+Interpreting why a baby is crying is often challenging, especially for first-time parents and caregivers. Since infants cannot communicate verbally, identifying their needs usually involves trying multiple solutions before finding the right one.
 
+CryNova aims to make this process easier by analyzing infant cries and predicting their likely cause using the Dunstan Baby Language framework. By combining audio signal processing with machine learning, the application provides quick predictions along with simple care suggestions.
 
-## Dunstan Baby Language Mapping
+---
 
-| Cry Sound | Meaning | Suggested Action |
-|-----------|---------|------------------|
-| NEH       | Hunger  | Offer a feed.    |
-| OWH       | Sleepy  | Rock or swaddle  |
-|                     |  the baby.       |
-| EAIRH     | Gas/Pain| Try bicycle leg  |
-|                     |  movements.      |
-| HEH       | Discomf | Check diaper     |
+## Overview
 
-## Technical Architecture & Stack
+CryNova is a web application that classifies baby cries based on their acoustic characteristics. It supports both uploaded audio files and live recordings, extracts relevant audio features, and predicts the most likely reason for the cry using a K-Nearest Neighbors (KNN) classifier.
 
-| Layer                 | Technologies                              | Purpose 
-| **Frontend & UI**     | Streamlit, Custom CSS/HTML, Audiorecorder | Provides an interactive web interface, custom styling, and browser-based audio recording. 
-| **Audio Processing**  | Librosa, Pydub, FFmpeg                    | Handles audio preprocessing, normalization, feature extraction, and format conversion. 
-| **Machine Learning**  | Scikit-Learn (KNN)                        | Classifies infant cries based on extracted acoustic features. |
+The project was developed as a prototype for the **Prototype Competition 2026** and focuses on providing a simple, accessible interface that can assist parents and caregivers in understanding an infant's immediate needs.
 
-### Technology Details
+---
 
-| Technology          | Role 
-| **Streamlit**       | Builds a responsive, single-page web application with minimal overhead. 
-| **Custom CSS/HTML** | Creates a clean, modern interface using custom layouts, typography, and pastel color themes. 
-| **Audiorecorder**   | Enables real-time baby cry recording directly within the browser. 
-| **Librosa**         | Extracts MFCCs, pitch (YIN), and RMS energy features from audio samples. 
-| **Scikit-Learn**    | Implements the K-Nearest Neighbors (KNN) classifier for cry-type prediction. 
-| **Pydub**           | Simplifies audio manipulation and processing workflows. 
-| **FFmpeg**          | Supports reliable audio conversion and export across different formats and platforms. 
+## UI Preview
 
-Getting Started
-1. Prerequisites
-Ensure you have Python 3.8+ installed on your system. You will also need to download and install FFmpeg on your local machine to handle automated audio conversions.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/09c8b2a1-447f-466c-a311-a97ed3a7fdda" width="48%">
+  <img src="https://github.com/user-attachments/assets/05c5aec1-3a30-42e9-a014-2980ab372495" width="48%">
+</p>
 
-2. Directory Structure
-For the code to initialize correctly and train its model, prepare your directory layout exactly as follows:
+---
 
-📁 CryNova/
+## Features
+
+* Upload a `.wav` audio file or record a baby's cry directly through the browser.
+* Extracts acoustic features including:
+
+  * Mel-Frequency Cepstral Coefficients (MFCCs)
+  * Fundamental frequency (Pitch) using the YIN algorithm
+  * Root Mean Square (RMS) Energy
+* Classifies infant cries using a K-Nearest Neighbors (KNN) machine learning model.
+* Displays the predicted cry type along with a confidence score.
+* Provides practical care suggestions based on the detected cry.
+* Clean and responsive interface built with Streamlit and custom CSS.
+
+---
+
+## Cry Type Mapping
+
+| Cry Sound | Meaning    | Suggested Action                      |
+| --------- | ---------- | ------------------------------------- |
+| **NEH**   | Hunger     | Offer a feed.                         |
+| **OWH**   | Sleepy     | Rock or swaddle the baby.             |
+| **EAIRH** | Gas / Pain | Try bicycle leg movements.            |
+| **HEH**   | Discomfort | Check the diaper or room temperature. |
+
+---
+
+## How It Works
+
+```text
+Audio Input
+      │
+      ▼
+Audio Preprocessing
+      │
+      ▼
+Feature Extraction
+(MFCC + Pitch + RMS)
+      │
+      ▼
+KNN Classification
+      │
+      ▼
+Cry Type Prediction
+      │
+      ▼
+Confidence Score
+      │
+      ▼
+Suggested Care Action
+```
+
+---
+
+## Technologies Used
+
+| Category             | Technologies            |
+| -------------------- | ----------------------- |
+| Programming Language | Python                  |
+| Web Framework        | Streamlit               |
+| UI Design            | Custom CSS, HTML        |
+| Audio Processing     | Librosa, Pydub, FFmpeg  |
+| Machine Learning     | Scikit-Learn (KNN)      |
+| Audio Recording      | Streamlit Audiorecorder |
+
+---
+
+## Project Structure
+
+```text
+CryNova/
 │
-├── 📄 app.py               # Main application source code
-├── 📄 README.md            # Documentation
+├── app.py
+├── README.md
 │
-└── 📁 dataset/             # Training data folder
-    ├── 📁 neh/             # .wav samples of hunger cries
-    ├── 📁 owh/             # .wav samples of sleepy cries
-    ├── 📁 eairh/           # .wav samples of gas/pain cries
-    └── 📁 heh/             # .wav samples of discomfort cries
+└── dataset/
+    ├── neh/
+    ├── owh/
+    ├── eairh/
+    └── heh/
+```
 
-Installation
-Clone or copy the source code file into your workspace as app.py.
+The `dataset` folder contains categorized infant cry samples used to train the KNN classifier during application startup.
 
-Install the necessary Python packages using pip:
+---
 
+## Installation
+
+Clone the repository and install the required Python packages:
+
+```bash
 pip install streamlit numpy librosa scikit-learn pydub st-audiorecorder
+```
 
-Running the Application
-Launch the local web development server by executing:
+Install **FFmpeg** separately and ensure it is correctly configured on your system, as it is required for audio processing and conversion.
+
+---
+
+## Running the Application
+
+Start the Streamlit server by running:
+
+```bash
 streamlit run app.py
+```
 
+The application will launch in your default web browser.
 
+---
+
+## Technical Details
+
+The application extracts three primary acoustic features from each audio sample:
+
+* **MFCCs (Mel-Frequency Cepstral Coefficients):** Capture the spectral characteristics of the baby's cry.
+* **Pitch (YIN Algorithm):** Estimates the fundamental frequency of the audio signal.
+* **RMS Energy:** Measures the intensity of the cry.
+
+These features are combined into a single feature vector and passed to a **K-Nearest Neighbors (KNN)** classifier, which predicts the most likely cry category. Based on the prediction, the application displays a confidence score and an appropriate care suggestion.
+
+---
+
+## Key Takeaway
+
+CryNova demonstrates how audio signal processing and machine learning can be applied to a real-world healthcare problem. By analyzing infant cry patterns and mapping them to common physical needs, the application provides caregivers with quick insights through a simple and user-friendly interface.
