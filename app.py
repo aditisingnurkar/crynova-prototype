@@ -13,7 +13,7 @@ AudioSegment.ffprobe   = r"C:\ffmpeg\bin\ffprobe.exe"
 DATASET_PATH = "dataset"
 DURATION     = 3
 
-# ─────────────────────────────────────────────────────────
+# Imports and setup
 st.set_page_config(page_title="CryNova", page_icon="", layout="wide")
 
 st.markdown("""
@@ -349,7 +349,7 @@ audio { width: 100%; border-radius: 6px; height: 36px; }
 """, unsafe_allow_html=True)
 
 
-# ── BACKEND ─────────────────────────────────────────────
+# Backend
 def extract_features(file_path):
     y, sr = librosa.load(file_path, duration=DURATION)
     y = librosa.util.normalize(y)
@@ -405,7 +405,7 @@ def predict(file_path, model, label_map):
     return inv_map[pred], confidence
 
 
-# Burp (eh) removed
+# Cry type mappings
 SUGGESTIONS = {
     "neh":   ("Baby may be hungry — try offering a feed."),
     "owh":   ("Baby seems sleepy — try gentle rocking or swaddling."),
@@ -415,18 +415,16 @@ SUGGESTIONS = {
 MEANINGS = dict(neh="Hunger", owh="Sleepy", eairh="Pain", heh="Discomfort")
 
 
-# ── LOAD DATA ────────────────────────────────────────────
+# LOAD DATA
 X, y_arr, label_map = load_dataset()
 dataset_ok = len(X) > 0
 if dataset_ok:
     model = train_model(X, y_arr)
 
 
-# ══════════════════════════════════════════════════════════
-# UI
-# ══════════════════════════════════════════════════════════
+# User interface
 
-# ── HEADER ───────────────────────────────────────────────
+# Header
 st.markdown("""
 <div class="app-header">
   <div class="header-left">
@@ -445,24 +443,10 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ── STATUS ───────────────────────────────────────────────
-if dataset_ok:
-    st.markdown(
-        f'<div class="badge-wrap"><span class="badge">&#10003; &nbsp;{len(X)} training samples loaded</span></div>',
-        unsafe_allow_html=True
-    )
-else:
-    st.markdown(
-        '<div class="badge-wrap"><span class="badge badge-err">&#10007; &nbsp;Dataset not found — check the dataset/ folder</span></div>',
-        unsafe_allow_html=True
-    )
-    st.stop()
-
-
-# ── TWO COLUMNS ──────────────────────────────────────────
+# Layout
 col_left, col_right = st.columns(2, gap="medium")
 
-# ── LEFT: Input ──────────────────────────────────────────
+# Input section
 with col_left:
     with st.container(border=True):
         st.markdown("""
@@ -492,7 +476,7 @@ with col_left:
                 audio_file_path = tmp.name
                 st.audio(audio_file_path)
 
-# ── RIGHT: Results ───────────────────────────────────────
+# Results section
 with col_right:
     with st.container(border=True):
         st.markdown("""
@@ -534,7 +518,7 @@ with col_right:
             </div>
             """, unsafe_allow_html=True)
 
-# ── FOOTER ───────────────────────────────────────────────
+# Footer
 st.markdown("""
 <div class="foot">
   CryNova
